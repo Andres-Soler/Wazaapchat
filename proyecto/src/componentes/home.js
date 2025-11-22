@@ -8,11 +8,6 @@ export function showHome() {
   app.innerHTML = `
     <div class="camera-screen">
 
-      <div class="top-bar">
-        <span>👤</span>
-        <span>⚙️</span>
-      </div>
-
       <video id="camera" autoplay playsinline></video>
 
       <button id="btnCapture" class="capture-btn"></button>
