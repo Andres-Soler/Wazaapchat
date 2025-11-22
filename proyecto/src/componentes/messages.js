@@ -43,23 +43,27 @@ export function showMessages() {
   app.innerHTML = `
     <div class="messages-screen">
 
-      <div class="messages-header">
-        <h2>💬 Chats</h2>
-        <div id="topBtns">
-          <button id="btnHome">🏠</button>
+      <!-- Lista de chats -->
+      <div id="friendsView">
+        <div class="messages-header">
+          <h2>💬 Chats</h2>
           <button id="btnNew">➕</button>
         </div>
+        <div id="friendsList"></div>
       </div>
 
-      <div id="friendsList"></div>
-
-      <div id="chatView" style="display:none; margin-top:12px;">
-        <div class="messages-header">
-          <div id="chatHeader"></div>
-          <button id="backToList">⬅</button>
+      <!-- Vista del chat -->
+      <div id="chatView" class="chat-view" style="display:none; flex-direction:column; height:100%;">
+        
+        <div class="messages-header chat-header-fixed">
+          <button id="backToList" class="back-btn">⬅</button>
+          <img id="chatAvatar" src="" class="chat-avatar">
+          <strong id="chatHeader"></strong>
         </div>
 
-        <div class="messages-box" id="messagesContainer"></div>
+        <div class="chat-messages-wrapper">
+          <div id="messagesContainer" class="messages-box"></div>
+        </div>
 
         <div class="chat-input-container">
           <input id="chatInput" class="chat-input" placeholder="Escribe un mensaje...">
@@ -71,10 +75,11 @@ export function showMessages() {
 
   const friendsList = document.getElementById("friendsList");
   const chatView = document.getElementById("chatView");
+  const friendsView = document.getElementById("friendsView");
   const messagesContainer = document.getElementById("messagesContainer");
   const chatHeader = document.getElementById("chatHeader");
+  const chatAvatar = document.getElementById("chatAvatar");
   const btnNew = document.getElementById("btnNew");
-  const btnHome = document.getElementById("btnHome");
   const backToList = document.getElementById("backToList");
   const chatInput = document.getElementById("chatInput");
   const sendMsg = document.getElementById("sendMsg");
@@ -83,11 +88,11 @@ export function showMessages() {
     const friends = getFriends();
 
     friendsList.innerHTML = friends.map(f => `
-      <div class="friend-item" data-id="${f.id}" style="display:flex; align-items:center; background:white; padding:10px; margin-bottom:8px; border-radius:12px; gap:10px;">
-        <img src="${f.avatar}" style="width:48px; height:48px; border-radius:50%;">
-        <div style="flex:1;">
-          <strong>${f.name}</strong><br>
-          <small style="opacity:.6;">Tap para chatear</small>
+      <div class="friend-item" data-id="${f.id}">
+        <img src="${f.avatar}">
+        <div class="friend-info">
+          <strong>${f.name}</strong>
+          <small>Tap para chatear</small>
         </div>
         <button class="delete-btn" data-delete="${f.id}">🗑</button>
       </div>
@@ -96,14 +101,13 @@ export function showMessages() {
 
   function openChat(friendId) {
     const friend = getFriends().find(f => f.id === friendId);
-    chatHeader.innerHTML = `
-      <img src="${friend.avatar}" style="width:36px;height:36px;border-radius:50%;">
-      <strong>${friend.name}</strong>
-    `;
 
-    friendsList.style.display = "none";
-    chatView.style.display = "block";
-    btnNew.style.display = "none";
+    // Actualizamos avatar y nombre
+    chatAvatar.src = friend.avatar;
+    chatHeader.textContent = friend.name;
+
+    friendsView.style.display = "none";
+    chatView.style.display = "flex";
 
     renderMessages(friendId);
   }
@@ -111,12 +115,14 @@ export function showMessages() {
   function renderMessages(friendId) {
     const msgs = getChats()[friendId] || [];
 
-    messagesContainer.innerHTML = msgs.map(msg => `
-      <div class="msg ${msg.from === "me" ? "mine" : ""}">
-        <p>${msg.text}</p>
-        <span>${new Date(msg.ts).toLocaleTimeString()}</span>
-      </div>
-    `).join("");
+    messagesContainer.innerHTML = msgs
+      .map(msg => `
+        <div class="msg ${msg.from === "me" ? "mine" : "other"}">
+          <p>${msg.text}</p>
+          <span class="time">${new Date(msg.ts).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}</span>
+        </div>
+      `)
+      .join("");
 
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -150,11 +156,8 @@ export function showMessages() {
 
   backToList.addEventListener("click", () => {
     chatView.style.display = "none";
-    friendsList.style.display = "block";
-    btnNew.style.display = "inline-block";
+    friendsView.style.display = "block";
   });
-
-  btnHome.onclick = () => navigate("home");
 
   btnNew.onclick = () => {
     const friends = getFriends();
