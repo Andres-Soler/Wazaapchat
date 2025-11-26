@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">wazaachat</string>
+    <string name="title_activity_main">wazaachat</string>
+    <string name="package_name">com.wazaachat.app</string>
+    <string name="custom_url_scheme">com.wazaachat.app</string>
+</resources>
